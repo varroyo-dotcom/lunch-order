@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunch Order Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background: #fff;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .export-btn {
+            margin-top: 10px;
+            background-color: #007BFF;
+        }
+
+        .export-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lunch Order Manager</h1>
+
+        <!-- Table for Displaying Orders -->
+        <table id="orderTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Order + Mods</th>
+                    <th>Order Total ($)</th>
+                    <th>Cash Given</th>
+                    <th>Change Owed</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <!-- Form for Adding Orders -->
+        <form id="orderForm">
+            <label for="name">Name</label>
+            <input type="text" id="name" required>
+
+            <label for="order">Order + Mods</label>
+            <input type="text" id="order" required>
+
+            <label for="orderTotal">Order Total ($)</label>
+            <input type="number" id="orderTotal" step="0.01" required>
+
+            <label for="cashGiven">Cash Given</label>
+            <input type="number" id="cashGiven" step="0.01" required>
+
+            <button type="submit">Add</button>
+        </form>
+
+        <!-- Export to PDF Button -->
+        <button class="export-btn" id="exportToPdf">Export to PDF</button>
+    </div>
+
+    <script>
+        // Get elements
+        const orderForm = document.getElementById('orderForm');
+        const orderTable = document.getElementById('orderTable').querySelector('tbody');
+        const exportToPdf = document.getElementById('exportToPdf');
+
+        // Handle form submission
+        orderForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Get form values
+            const name = document.getElementById('name').value;
+            const order = document.getElementById('order').value;
+            const orderTotal = parseFloat(document.getElementById('orderTotal').value);
+            const cashGiven = parseFloat(document.getElementById('cashGiven').value);
+
+            // Calculate change owed
+            const changeOwed = (cashGiven - orderTotal).toFixed(2);
+
+            // Add new row to the table
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${name}</td>
+                <td>${order}</td>
+                <td>$${orderTotal.toFixed(2)}</td>
+                <td>$${cashGiven.toFixed(2)}</td>
+                <td>$${changeOwed}</td>
+            `;
+            orderTable.appendChild(newRow);
+
+            // Reset the form
+            orderForm.reset();
+        });
+
+        // Export to PDF functionality
+        exportToPdf.addEventListener('click', function () {
+            const { jsPDF } = window.jspdf;
+
+            const doc = new jsPDF();
+            const table = document.getElementById('orderTable');
+
+            // Add the table to the PDF
+            doc.text('Lunch Order Summary', 14, 10);
+            doc.autoTable({ html: table });
+
+            // Save the PDF
+            doc.save('Lunch_Order.pdf');
+        });
+    </script>
+
+    <!-- Include jsPDF and jsPDF-AutoTable libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.26/jspdf.plugin.autotable.min.js"></script>
+</body>
+</html>
